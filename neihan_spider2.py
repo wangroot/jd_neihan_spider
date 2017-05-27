@@ -1,5 +1,5 @@
 # -*- coding:utf-8 -*-
-# 内涵社区段子爬虫（升级版）
+# 内涵社区段子小爬虫升级版
 import requests
 import MySQLdb
 import urlparse
@@ -7,10 +7,6 @@ import datetime
 import random
 import json
 
-# 连接数据库
-conn = MySQLdb.connect(host='xxx', port=3306, user='root', passwd='xxx',
-                       db='xxx', charset='utf8')
-cursor = conn.cursor()
 headers = {
     'Host': 'neihanshequ.com',
     'User-Agent': 'Mozilla/5.0 (Windows NT 6.3; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36',
@@ -25,24 +21,29 @@ headers = {
 }
 content_set = set()
 count = 0
-
-# 获得不重复内容集合
-for i in range(1500):
-    number = random.randint(10000, 100000)
-    count += 1
-    print count
-    url = urlparse.urljoin('http://neihanshequ.com/',
-                           'joke/?is_json=1&app_name=neihanshequ_web&max_time=14943' + str(number))
-    try:
-        resp = requests.get(url, headers=headers, timeout=5)
-    except Exception as e:
-        print 'error : ', e
-    json_content = json.loads(resp.text)
-    for contents in json_content['data']['data']:
-        content = '<p>' + contents['group']['text'] + '</p>'
-        content_set.add(content)
+for n in range(20, 55):
+    # 获得不重复内容集合
+    for i in range(1000):
+        number = random.randint(10000, 100000)
+        count += 1
+        print count
+        url = urlparse.urljoin('http://neihanshequ.com/',
+                               'joke/?is_json=1&app_name=neihanshequ_web&max_time=149' + str(n) + str(number))
+        # print url
+        try:
+            resp = requests.get(url, headers=headers, timeout=5)
+            json_content = json.loads(resp.text)
+        except Exception as e:
+            print 'error : ', e
+        for contents in json_content['data']['data']:
+            content = '<p>' + contents['group']['text'] + '</p>'
+            content_set.add(content)
 
 # 遍历，存入数据库
+# 连接数据库
+conn = MySQLdb.connect(host='xxx', port=3306, user='root', passwd='xxx',
+                       db='xxx', charset='utf8')
+cursor = conn.cursor()
 count = 0
 for content_ in content_set:
     try:
